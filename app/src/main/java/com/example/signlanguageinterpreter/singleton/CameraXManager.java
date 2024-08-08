@@ -1,6 +1,7 @@
 package com.example.signlanguageinterpreter.singleton;
 
 import static androidx.compose.material3.ShapesKt.start;
+import static androidx.core.content.ContextCompat.getString;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,10 +25,14 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
 import androidx.lifecycle.LifecycleOwner;
+
+import com.example.signlanguageinterpreter.R;
+
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+
 
 public class CameraXManager {
     private static CameraXManager instance;
@@ -153,30 +158,36 @@ public class CameraXManager {
         recording = videoCapture.getOutput()
                 .prepareRecording(context, mediaStoreOutputOptions)
                 .apply {
-            if (PermissionChecker.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == PermissionChecker.PERMISSION_GRANTED) {
+            if (PermissionChecker.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == PermissionChecker.PERMISSION_GRANTED)
+            {
                 withAudioEnabled();
             }
         }
-                .start(ContextCompat.getMainExecutor(context), videoRecordEvent -> {
-            if (videoRecordEvent instanceof VideoRecordEvent.Start) {
-                // Update the UI to reflect the start of the recording
-                // Example: viewBinding.videoCaptureButton.setText(R.string.stop_capture);
-                // Example: viewBinding.videoCaptureButton.setEnabled(true);
+                .start(ContextCompat.getMainExecutor(this)) { recordEvent ->
+                when(recordEvent) {
+            is VideoRecordEvent.Start -> {
+                viewBinding.videoCaptureButton.apply {
+                    text = getString(R.string.stop_capture)
+                    isEnabled = true
             } else if (videoRecordEvent instanceof VideoRecordEvent.Finalize) {
-                if (!((VideoRecordEvent.Finalize) videoRecordEvent).hasError()) {
-                    String msg = "Video capture succeeded: " + ((VideoRecordEvent.Finalize) videoRecordEvent).getOutputResults().getOutputUri();
-                    Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, msg);
+                if (!recordEvent.hasError()) {
+                    val msg = "Video capture succeeded: " +
+                            "${recordEvent.outputResults.outputUri}"
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT)
+                            .show()
+                    Log.d(TAG, msg)
                 } else {
                     recording.close();
                     recording = null;
-                    Log.e(TAG, "Video capture ends with error: " + ((VideoRecordEvent.Finalize) videoRecordEvent).getError());
+                    Log.e(TAG, "Video capture ends with error: " +
+                            "${recordEvent.error}");
                 }
-                // Update the UI to reflect the stop of the recording
-                // Example: viewBinding.videoCaptureButton.setText(R.string.start_capture);
-                // Example: viewBinding.videoCaptureButton.setEnabled(true);
+                viewBinding.videoCaptureButton.apply {
+                    text = getString(R.string.start_capture)
+                    isEnabled = true
+                }
             }
-        });
+        }
     }
 }
 

@@ -24,7 +24,9 @@ listen for classification results. These observers update the UI and log the res
 new gesture is recognized. This interaction pattern ensures that the application components remain 
 loosely coupled, making the system flexible and easier to maintain.
 
-In summary, the app flow starts from MainActivity, initializes the facade, which in turn sets up the camera and the TensorFlow model. Observers are notified of classification results, updating the UI and logs, ensuring real-time feedback and a seamless user experience.
+In summary, the app flow starts from MainActivity, initializes the facade, which in turn sets up 
+the camera and the TensorFlow model. Observers are notified of classification results, updating 
+the UI and logs, ensuring real-time feedback and a seamless user experience.
 
 ## Purpose
 
