@@ -22,6 +22,7 @@ public class TensorFlowModelBuilder {
     private String modelPath; // Path to the TensorFlow Lite model file
     private Context context; // Android context to access assets
     private List<String> labels; // Labels corresponding to the model's output
+    private int numThreads; // Number of threads for the interpreter
 
     /**
      * Constructor for TensorFlowModelBuilder.
@@ -42,6 +43,15 @@ public class TensorFlowModelBuilder {
     public TensorFlowModelBuilder setNumThreads(int numThreads) {
         this.options.setNumThreads(numThreads); // Configure the number of threads
         return this;
+    }
+
+    /**
+     * Gets the number of threads set for the interpreter.
+     *
+     * @return The number of threads.
+     */
+    public int getNumThreads() {
+        return this.numThreads;
     }
 
     /**
@@ -75,7 +85,7 @@ public class TensorFlowModelBuilder {
         // Load the model file from the specified path
         Interpreter interpreter = new Interpreter(loadModelFile(modelPath), options);
         // Return a new TensorFlowModel instance with the interpreter and labels
-        return new TensorFlowModel(interpreter, labels);
+        return new TensorFlowModel(interpreter, labels, numThreads);
     }
 
     /**

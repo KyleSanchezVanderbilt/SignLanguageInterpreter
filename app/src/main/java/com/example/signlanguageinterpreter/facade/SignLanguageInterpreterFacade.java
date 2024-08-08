@@ -45,6 +45,11 @@ public class SignLanguageInterpreterFacade {
         cameraManager.startCamera(context);
     }
 
+    //Get an Observer
+    public Observer getObserver() {
+        return subject.getObserver();
+    }
+
     // Add an observer to the subject
     public void addObserver(Observer observer) {
         subject.addObserver(observer);
@@ -65,5 +70,9 @@ public class SignLanguageInterpreterFacade {
         }
 
         return results;
+    }
+
+    public List<Observer> getObservers() {
+        return (List<Observer>) subject.getObserver();
     }
 }

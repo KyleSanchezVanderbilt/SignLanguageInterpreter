@@ -20,16 +20,40 @@ public class TensorFlowModel {
     private Interpreter interpreter;
     private ImageProcessor imageProcessor;
     private List<String> labels;
+    private int numThreads;
+    private String modelPath;
 
     public TensorFlowModel(Interpreter interpreter, List<String> labels) {
         this.interpreter = interpreter;
         this.labels = labels;
+        this.modelPath = modelPath;
 
         // Initialize the ImageProcessor with required preprocessing steps
         imageProcessor = new ImageProcessor.Builder()
                 .add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
                 .add(new NormalizeOp(0, 1)) // Normalization
                 .build();
+    }
+
+    // Added this constructor to accept the number of threads
+    public TensorFlowModel(Interpreter interpreter, List<String> labels, int numThreads) {
+        this(interpreter, labels);
+        this.numThreads = numThreads;
+    }
+
+    public List<String> getLabels() {
+        return labels;
+    }
+
+    // Add getModelPath method
+    public String getModelPath() {
+        return modelPath;
+    }
+
+
+    // Add getter method for numThreads
+    public int getNumThreads() {
+        return numThreads;
     }
 
     public List<String> classify(Bitmap bitmap, int rotation) {

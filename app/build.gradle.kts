@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    
 }
 
 android {
@@ -53,15 +54,11 @@ android {
 
 
 dependencies {
-    /**def camerax_version = "1.2.2"
-    implementation(androidx.camera:camera-core:1.2.2)
-    implementation(androidx.camera:camera-camera2:1.2.2)
-    implementation(androidx.camera:camera-lifecycle:1.2.2)
-    implementation(androidx.camera:camera-video:1.2.2)
 
-    implementation(androidx.camera:camera-view:1.2.2)
-    implementation(androidx.camera.camera.extensions:1.2.2)
-    **/
+    //testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    //testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
+    //testCompile "org.mockito:mockito-core:2.23.0"
+    //testCompile group: 'org.mockito', name: 'mockito-core', version: '4.6.1'
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -78,6 +75,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.monitor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

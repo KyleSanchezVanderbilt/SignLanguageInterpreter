@@ -1,35 +1,21 @@
 package com.example.signlanguageinterpreter
 
 import android.Manifest
-import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
-import com.example.signlanguageinterpreter.R
 import com.example.signlanguageinterpreter.databinding.ActivityMainBinding
 import com.example.signlanguageinterpreter.facade.SignLanguageInterpreterFacade
 import com.example.signlanguageinterpreter.observer.LogObserver
@@ -38,6 +24,7 @@ import com.example.signlanguageinterpreter.singleton.CameraXManager
 import com.example.signlanguageinterpreter.ui.theme.SignLanguageInterpreterTheme
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+
 
 class MainActivity : AppCompatActivity() {
     // View binding instance to access UI elements
@@ -74,8 +61,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        cameraExecutor = Executors.newSingleThreadExecutor()
         // Inflate the layout using view binding
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
@@ -94,10 +83,24 @@ class MainActivity : AppCompatActivity() {
             requestPermissions()
         }
 
+        setContent{
+
+            SignLanguageInterpreterTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    CameraPreview(
+                        modifier = Modifier.padding(innerPadding),
+                        context = this,
+                        previewView = PreviewView(this),
+                        cameraExecutor = cameraExecutor
+                    )
+                }
+            }
+        }
+
+
+
         // Set up the listeners for take photo and video capture buttons
         viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
-
-        //cameraExecutor = Executors.newSingleThreadExecutor()
 
         // Adding observers to the interpreter facade
         val resultText = findViewById<TextView>(R.id.result_text)
@@ -121,6 +124,11 @@ class MainActivity : AppCompatActivity() {
     private fun requestPermissions() {
         activityResultLauncher.launch(REQUIRED_PERMISSIONS)
     }
+
+
+
+
+
 
     // Function to check if all required permissions are granted
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {

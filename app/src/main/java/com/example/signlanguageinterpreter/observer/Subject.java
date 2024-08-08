@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Subject {
     // A list to hold all the observers that are observing this subject
-    private List<Observer> observers = new ArrayList<>();
+    private final List<Observer> observers = new ArrayList<>();
 
     /**
      * Adds an observer to the list of observers.
@@ -19,6 +19,15 @@ public class Subject {
      */
     public void addObserver(Observer observer) {
         observers.add(observer); // Add the observer to the list
+    }
+
+    /**
+     * Returns the list of observers.
+     *
+     * @return The list of observers.
+     */
+    public Observer getObserver() {
+        return (Observer) observers;
     }
 
     /**
