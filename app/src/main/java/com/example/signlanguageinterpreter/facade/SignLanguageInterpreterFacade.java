@@ -5,75 +5,65 @@ import com.example.signlanguageinterpreter.builder.TensorFlowModelBuilder;
 import com.example.signlanguageinterpreter.model.TensorFlowModel;
 import com.example.signlanguageinterpreter.singleton.CameraXManager;
 import com.example.signlanguageinterpreter.observer.Observer;
-import com.example.signlanguageinterpreter.observer.Subject;
+
 import android.graphics.Bitmap;
 import androidx.camera.view.PreviewView;
-import org.tensorflow.lite.support.common.FileUtil;
 
-import java.io.IOException;
-import java.nio.MappedByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 public class SignLanguageInterpreterFacade {
     private TensorFlowModel model;
     private CameraXManager cameraManager;
-    private Subject subject;
+    private List<Observer> observers;
 
     public SignLanguageInterpreterFacade(Context context, PreviewView previewView) {
-        // Initialize TensorFlow model using the builder pattern
         TensorFlowModelBuilder builder = new TensorFlowModelBuilder(context);
-        try {
-            MappedByteBuffer modelBuffer = FileUtil.loadMappedFile(context, "detect.tflite");
-            List<String> labels = FileUtil.loadLabels(context, "labels.txt");
-            this.model = builder.setModelPath("detect.tflite")
-                    .setNumThreads(4)
-                    .setLabels(labels)
-                    .build();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Initialize CameraX manager using the singleton pattern
+        this.model = builder.setModelPath("detect.tflite").setNumThreads(4).build();
         this.cameraManager = CameraXManager.getInstance(context, previewView);
-
-        // Initialize Subject for the observer pattern
-        this.subject = new Subject();
+        this.observers = new ArrayList<>();
     }
 
-    // Start the camera using CameraX
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
     public void startCamera(Context context) {
         cameraManager.startCamera(context);
     }
 
-    //Get an Observer
-    public Observer getObserver() {
-        return subject.getObserver();
-    }
-
-    // Add an observer to the subject
-    public void addObserver(Observer observer) {
-        subject.addObserver(observer);
-    }
-
-    // Remove an observer from the subject
-    public void removeObserver(Observer observer) {
-        subject.removeObserver(observer);
-    }
-
-    // Classify an image and notify observers with the results
     public List<String> classifyImage(Bitmap bitmap, int rotation) {
         List<String> results = model.classify(bitmap, rotation);
-
-        // Notify all observers with the classification result
-        for (String result : results) {
-            subject.notifyObservers(result);
-        }
-
+        notifyObservers(results.toString());
         return results;
     }
 
-    public List<Observer> getObservers() {
-        return (List<Observer>) subject.getObserver();
+    public void takePhoto(Context context) {
+        cameraManager.takePhoto(context);
+        cameraManager.setOnPhotoSavedCallback(this::notifyPhotoObservers);
+    }
+
+    public void captureVideo(Context context) {
+        cameraManager.captureVideo(context);
+        cameraManager.setOnVideoSavedCallback(this::notifyVideoObservers);
+    }
+
+    private void notifyObservers(String result) {
+        for (Observer observer : observers) {
+            observer.update(result);
+        }
+    }
+
+    private void notifyPhotoObservers(String photoPath) {
+        for (Observer observer : observers) {
+            observer.onPhotoCaptured(photoPath);
+        }
+    }
+
+    private void notifyVideoObservers(String videoPath) {
+        for (Observer observer : observers) {
+            observer.onVideoCaptured(videoPath);
+        }
     }
 }
+

@@ -31,8 +31,8 @@ the UI and logs, ensuring real-time feedback and a seamless user experience.
 ## Purpose
 
 The purpose of this app is to interpret sign language gestures using a pre-trained TensorFlow Lite 
-model. The app captures gestures through the device's camera, processes the frames using OpenCV, 
-and interprets the gestures to display the corresponding text.
+model. The app captures gestures through the device's camera, processes the frames using the observer, 
+to interpret the gestures to display the corresponding text.
 
 ## Design Patterns
 
@@ -238,7 +238,7 @@ a flexible and modular image processing pipeline.
 ```
 ### 4. Facade Pattern
 
-**Purpose**: To simplify interactions with the complex subsystems like TensorFlow and OpenCV.
+**Purpose**: To simplify interactions with the complex subsystems like TensorFlow
 
 **Reason for Choice**: The Facade pattern provides a simplified interface to a complex subsystem. 
 This makes it easier for clients to interact with the system without needing to understand its 

@@ -1,5 +1,6 @@
 package com.example.signlanguageinterpreter.singleton;
 
+
 import static androidx.compose.material3.ShapesKt.start;
 
 import android.Manifest;
@@ -9,8 +10,11 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.MediaStoreOutputOptions;
@@ -25,10 +29,10 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.google.firebase.firestore.util.Listener;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
@@ -37,9 +41,11 @@ public class CameraXManager {
     private static CameraXManager instance;
     private ProcessCameraProvider cameraProvider;
     private PreviewView previewView;
-    private ImageCapture imageCapture;
+    public ImageCapture imageCapture;
     private VideoCapture<Recorder> videoCapture;
     private Recording recording;
+    private OnPhotoSavedCallback onPhotoSavedCallback;
+    private OnVideoSavedCallback onVideoSavedCallback;
     private static ExecutorService cameraExecutor;
     private static final String TAG = "CameraXManager";
     private static final String FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS";
@@ -84,6 +90,48 @@ public class CameraXManager {
         }
     }
 
+    public void takePhoto(Context context) {
+        ImageCapture imageCapture = this.imageCapture;
+        if (imageCapture == null) return;
+
+        String name = new SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+                .format(System.currentTimeMillis());
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image");
+        }
+
+        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(
+                context.getContentResolver(),
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+        ).build();
+
+        imageCapture.takePicture(
+                outputOptions,
+                ContextCompat.getMainExecutor(context),
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exc) {
+                        Log.e(TAG, "Photo capture failed: " + exc.getMessage(), exc);
+                    }
+
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
+                        String msg = "Photo capture succeeded: " + output.getSavedUri();
+                        if (onPhotoSavedCallback != null) {
+                            onPhotoSavedCallback.onPhotoSaved(Objects.requireNonNull(output.getSavedUri()).toString());
+                        }
+                        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, msg);
+                    }
+                }
+        );
+    }
+
     public void captureVideo(Context context) {
         if (videoCapture == null) return;
 
@@ -111,9 +159,7 @@ public class CameraXManager {
                 .setContentValues(contentValues)
                 .build();
 
-        recording = videoCapture.getOutput()
-                .prepareRecording(context, mediaStoreOutputOptions)
-                .apply {
+        recording = videoCapture.getOutput().prepareRecording(context, mediaStoreOutputOptions).apply {
             if (PermissionChecker.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
                     PermissionChecker.PERMISSION_GRANTED) {
                 withAudioEnabled();
@@ -140,6 +186,21 @@ public class CameraXManager {
             }
         });
     }
+    // Callback interfaces for photo and video save events
+    public interface OnPhotoSavedCallback {
+        void onPhotoSaved(String photoPath);
+    }
+
+    public interface OnVideoSavedCallback {
+        void onVideoSaved(String videoPath);
+    }
+
+    public void setOnPhotoSavedCallback(OnPhotoSavedCallback callback) {
+        this.onPhotoSavedCallback = callback;
+    }
+
+    public void setOnVideoSavedCallback(OnVideoSavedCallback callback) {
+        this.onVideoSavedCallback = callback;
     }
 }
 
