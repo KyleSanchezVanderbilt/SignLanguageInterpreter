@@ -20,10 +20,10 @@ public class CameraXManagerPhotoCaptureTest {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         PreviewView previewView = new PreviewView(context);
         ExecutorService cameraExecutor = Executors.newSingleThreadExecutor();
-        CameraXManager manager = CameraXManager.getInstance(context, previewView, cameraExecutor);
+        CameraXManager manager = CameraXManager.getInstance(context, previewView);
 
         try {
-            manager.takePhoto(context);
+            manager.imageCapture.takePicture(context);
         } catch (Exception e) {
             fail("Photo capture should not throw an exception");
         }

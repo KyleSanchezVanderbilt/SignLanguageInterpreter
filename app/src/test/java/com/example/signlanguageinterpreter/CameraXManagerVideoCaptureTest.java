@@ -20,7 +20,7 @@ public class CameraXManagerVideoCaptureTest {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         PreviewView previewView = new PreviewView(context);
         ExecutorService cameraExecutor = Executors.newSingleThreadExecutor();
-        CameraXManager manager = CameraXManager.getInstance(context, previewView, cameraExecutor);
+        CameraXManager manager = CameraXManager.getInstance(context, previewView);
 
         try {
             manager.captureVideo(context);

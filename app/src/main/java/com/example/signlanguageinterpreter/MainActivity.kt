@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         interpreterFacade = SignLanguageInterpreterFacade(this, previewView)
 
         // Initialize CameraXManager with the context, preview view, and executor
-        cameraXManager = CameraXManager.getInstance(this, previewView, cameraExecutor)
+        cameraXManager = CameraXManager.getInstance(this, previewView)
 
         // Check if all permissions are granted, if not, request permissions
         if (allPermissionsGranted()) {

@@ -21,7 +21,7 @@ public class CameraXManagerInitializationTest {
         PreviewView previewView = new PreviewView(context);
         ExecutorService cameraExecutor = Executors.newSingleThreadExecutor();
 
-        CameraXManager manager = CameraXManager.getInstance(context, previewView, cameraExecutor);
+        CameraXManager manager = CameraXManager.getInstance(context, previewView);
 
         assertNotNull("CameraXManager instance should not be null", manager);
     }

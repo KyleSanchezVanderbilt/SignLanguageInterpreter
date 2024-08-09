@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService
 
 @Composable
 fun CameraPreview(modifier: Modifier, context: Context, previewView: PreviewView, cameraExecutor: ExecutorService) {
-    val cameraManager = CameraXManager.getInstance(context, previewView, cameraExecutor)
+    val cameraManager = CameraXManager.getInstance(context, previewView)
     AndroidView(factory = { previewView }, modifier = modifier)
     cameraManager.startCamera(context)
 }

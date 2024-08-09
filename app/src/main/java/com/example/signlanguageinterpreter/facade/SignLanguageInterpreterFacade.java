@@ -13,6 +13,7 @@ import org.tensorflow.lite.support.common.FileUtil;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 public class SignLanguageInterpreterFacade {
     private TensorFlowModel model;

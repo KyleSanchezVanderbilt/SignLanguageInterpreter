@@ -21,8 +21,8 @@ public class CameraXManagerSingletonTest {
         PreviewView previewView = new PreviewView(context);
         ExecutorService cameraExecutor = Executors.newSingleThreadExecutor();
 
-        CameraXManager instance1 = CameraXManager.getInstance(context, previewView, cameraExecutor);
-        CameraXManager instance2 = CameraXManager.getInstance(context, previewView, cameraExecutor);
+        CameraXManager instance1 = CameraXManager.getInstance(context, previewView);
+        CameraXManager instance2 = CameraXManager.getInstance(context, previewView);
 
         assertSame("Both instances should be the same", instance1, instance2);
     }
